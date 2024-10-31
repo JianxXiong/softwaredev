@@ -1,5 +1,6 @@
 
 #基础HTML元素类，支持标签、子元素、文本内容的操作
+#Model层
 class HTMLElement:
 
     def __init__(self, tag, content="", parent=None, element_id=None) -> None:

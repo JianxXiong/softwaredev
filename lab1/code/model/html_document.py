@@ -1,6 +1,7 @@
 from html_element import HTMLElement
 
 #整个html文档，最外层为html元素，包含head和body
+#Service层
 class HTMLDocument:
 
     def __init__(self, title="My Webapp") -> None:
@@ -15,8 +16,10 @@ class HTMLDocument:
         self.html.add_child(self.head)
         self.html.add_child(self.body)
 
+    #修改title内容
     def set_title(self, new_title) -> None:
         self.title.set_content(new_title)
+
     #按照元素id判断元素是否存在
     def whether_exists_id(self, id):
         if id in self.ids:
