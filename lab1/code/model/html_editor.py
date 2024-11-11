@@ -29,6 +29,13 @@ class HTMLEditor:
     def add_into(self, parent_id, new_element_id, new_element_content, new_element_tag) -> None:
         self.document.add_into(target_id=parent_id, new_element=HTMLElement(tag=new_element_tag, id=new_element_id, content=new_element_content, parent=parent_id))
    
+    #修改元素id
+    def edit_element_id(self, target_id, new_id) -> None:
+        self.document.edit_element_id(target_id=target_id, new_id=new_id)
+
+    #修改元素文本
+    def edit_element_content(self, target_id, new_content):
+        self.document.edit_element_content(target_id=target_id, new_content=new_content)
     def undo(self):
         if self.history:
             last_action = self.history.pop()
@@ -46,11 +53,12 @@ class HTMLEditor:
             elif command.startswith("append"):
                 tag, id, target_id, content = command.split(" ")[1:]
                 self.add_into(parent_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
-            elif command.startswith("title"):
-                _, new_title = command.split(" ", 1)
-                self.edit_title(new_title)
-            elif command == "undo":
-                self.undo()
+            elif command.startswith("edit-id"):
+                target_id, new_id = command.split(" ")[1:]
+                self.edit_element_id(target_id=target_id, new_id=new_id)
+            elif command.startswith("edit-id"):
+                target_id, new_content = command.split(" ")[1:]
+                self.edit_element_content(target_id=target_id, new_content=new_content)
             elif command == "redo":
                 self.redo()
             elif command == "quit":
