@@ -3,6 +3,7 @@ from .html_document import HTMLDocument
 
 
 #命令行HTML编辑器，允许用户操作HTML文档
+#Controller层
 class HTMLEditor:
     
     def __init__(self) -> None:
