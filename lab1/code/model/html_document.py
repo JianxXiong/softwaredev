@@ -1,4 +1,5 @@
-from html_element import HTMLElement
+from .html_element import HTMLElement
+from spellchecker import SpellChecker
 
 #整个html文档，最外层为html元素，包含head和body
 #Service层
@@ -25,6 +26,7 @@ class HTMLDocument:
         if id in self.ids:
             return True
         return False
+    
     #判断元素是否存在
     def whether_exists_element(self, element) -> bool:
         return self.whether_exists_id(element.id)
@@ -119,6 +121,35 @@ class HTMLDocument:
         target_element = self.find_element_by_id(self.html, target_id)
         target_element.set_content(new_content)
 
+    #删除某元素
+    def delete_element(self, element_id) -> None:
+        if not self.whether_exists_id(element_id):
+            print(f"element with this id: {element_id} doesn`t exsists!")
+        target_element = self.find_element_by_id(element_id)
+        parent = target_element.parent
+        if parent is not None:
+            parent.children.remove(target_element)
+        self._remove_element_recursively(element_id)
+    
+    #打印树形结构
+    def display_tree_structure(self, indent=2) -> None:
+        self._display_tree(self.html, level=0, is_first=True, is_last=True, prefix="", indent=indent)
+
+    #打印缩进结构
+    def display_indent_structure(self) -> None:
+        self._display_indent(self.html, 0)
+
+    #拼写检查
+    def check_spelling(self) -> None:
+        print("Checking spelling in the document...")
+        errors = self._check_spelling_recursively(self.html)
+        if not errors:
+            print("No spelling errors found.")
+        else:
+            print("Spelling errors found:")
+            for word, suggestions in errors.items():
+                print(f" - '{word}' may be incorrect. Suggestions: {suggestions}")
+
     #树的格式
     def _display_tree(self, element, level, is_first, is_last, prefix) -> None:
         connector = "└── " if is_last else "├── "
@@ -131,8 +162,8 @@ class HTMLDocument:
             self._display_tree(child, level + 1, False, is_last=(i == child_count - 1), prefix=new_prefix)
 
     #缩进格式
-    def _display_indent(self, element, level) -> None:
-        indent = "    " * level
+    def _display_indent(self, element, level, indent=2) -> None:
+        indent = " " * indent * level
         id_part = f' id="{element.id}"' if element.id else ''
         tag_open = f"{indent}<{element.tag}{id_part}> "
         content = element.content
@@ -143,14 +174,30 @@ class HTMLDocument:
             for child in element.children:
                 self._display_indent(child, level + 1)
             print(f"{indent}</{element.tag}>")
-
-    def display_tree_structure(self) -> None:
-        self._display_tree(self.html, level=0, is_first=True, is_last=True, prefix="")
-
     
-    def display_indent_structure(self) -> None:
-        self._display_indent(self.html, 0)
-
+    #递归删除子元素
+    def _remove_element_recursively(self, element) -> None:
+        if element.id in self.ids:
+            self.ids.remove(element.id)
+        for child in element.children:
+            self._remove_element_recursively(child)
+    
+    #递归检查拼写
+    def __check_spelling_recursively(self, element) -> dict:
+        errors = {}
+        if element.content:
+            words = element.content.split()
+            for word in words:
+                if word not in self.spell_checker:  
+                    suggestions = self.spell_checker.candidates(word)
+                    errors[word] = list(suggestions)
+        
+        for child in element.children:
+            child_errors = self._check_spelling_recursively(child)
+            errors.update(child_errors)
+        
+        return errors
+    
 if __name__ == "__main__":
     document = HTMLDocument(title="My Webapp")
     res = document.display_indent_structure()
