@@ -20,7 +20,7 @@ class HTMLElement:
     def set_id(self, new_id) -> None:
         self.id = new_id
 
-    def set_parent(self, new_parent):
+    def set_parent(self, new_parent) -> None:
         self.parent = new_parent
 
     def __str__(self) -> str:

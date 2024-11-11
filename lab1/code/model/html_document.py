@@ -21,12 +21,12 @@ class HTMLDocument:
         self.title.set_content(new_title)
 
     #按照元素id判断元素是否存在
-    def whether_exists_id(self, id):
+    def whether_exists_id(self, id) -> bool:
         if id in self.ids:
             return True
         return False
     #判断元素是否存在
-    def whether_exists_element(self, element):
+    def whether_exists_element(self, element) -> bool:
         return self.whether_exists_id(element.id)
     
     #通过id获取元素
@@ -81,7 +81,7 @@ class HTMLDocument:
             print(f"Element with id '{target_id}' not found.")
 
     #修改元素id
-    def edit_element_id(self, target_id, new_id):
+    def edit_element_id(self, target_id, new_id) -> None:
         if self.whether_exists_id(new_id):
             print(f"element with this id: {new_id} already exsists!")
             return
@@ -93,7 +93,7 @@ class HTMLDocument:
         target_element.set_id(new_id)
 
     #修改元素文本
-    def edit_element_content(self, target_id, new_content):
+    def edit_element_content(self, target_id, new_content) -> None:
         if self.whether_exists_id(target_id) is False:
             print(f"element with this id: {target_id} doesn`t exsists!")
             return
@@ -101,7 +101,7 @@ class HTMLDocument:
         target_element.set_content(new_content)
 
     #树的格式
-    def _display_tree(self, element, level, is_first, is_last, prefix):
+    def _display_tree(self, element, level, is_first, is_last, prefix) -> None:
         connector = "└── " if is_last else "├── "
         if is_first:
             connector = ""

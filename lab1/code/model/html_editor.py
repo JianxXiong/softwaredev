@@ -14,14 +14,14 @@ class HTMLEditor:
     def display_document(self) -> None:
         print(self.document)
 
-    def display_tree_structure(self):
+    def display_tree_structure(self) -> None:
         self.document.display_tree_structure()
 
-    def edit_title(self, new_title):
+    def edit_title(self, new_title) -> None:
         self.history.append((self.document.title.content, 'title'))
         self.document.set_title(new_title)
 
-    def add_paragraph(self, text, element_id):
+    def add_paragraph(self, text, element_id) -> None:
         paragraph = HTMLElement("p", content=text, element_id=element_id)
         self.history.append((None, 'add', paragraph))
         self.document.add_to_body(paragraph)
