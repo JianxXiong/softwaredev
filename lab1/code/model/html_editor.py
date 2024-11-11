@@ -12,7 +12,7 @@ class HTMLEditor:
         self.redo_stack = []
 
     def display_document(self) -> None:
-        print(self.document)
+        self.document.display_indent_structure()
 
     def display_tree_structure(self) -> None:
         self.document.display_tree_structure()
@@ -21,11 +21,14 @@ class HTMLEditor:
         self.history.append((self.document.title.content, 'title'))
         self.document.set_title(new_title)
 
-    def add_paragraph(self, text, element_id) -> None:
-        paragraph = HTMLElement("p", content=text, element_id=element_id)
-        self.history.append((None, 'add', paragraph))
-        self.document.add_to_body(paragraph)
-
+    #在某元素前插入元素
+    def insert_before(self, target_id, new_element_id, new_element_content, new_element_tag) -> None:
+        self.document.insert_before(target_id=target_id, new_element=HTMLElement(tag=new_element_tag, content=new_element_content, element_id=new_element_id))
+    
+    #向某元素内部添加子元素
+    def add_into(self, parent_id, new_element_id, new_element_content, new_element_tag) -> None:
+        self.document.add_into(target_id=parent_id, new_element=HTMLElement(tag=new_element_tag, id=new_element_id, content=new_element_content, parent=parent_id))
+   
     def undo(self):
         if self.history:
             last_action = self.history.pop()
@@ -37,16 +40,15 @@ class HTMLEditor:
     def run(self) -> None:
         while True:
             command = input("Enter command (view, tree, title, addp, undo, redo, quit): ")
-            if command == "view":
-                self.display_document()
-            elif command == "tree":
-                self.display_tree_structure()
+            if command.startswith("insert"):
+                tag, id, target_id, content = command.split(" ")[1:]
+                self.insert_before(target_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
+            elif command.startswith("append"):
+                tag, id, target_id, content = command.split(" ")[1:]
+                self.add_into(parent_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
             elif command.startswith("title"):
                 _, new_title = command.split(" ", 1)
                 self.edit_title(new_title)
-            elif command.startswith("addp"):
-                _, text, element_id = command.split(" ", 2)
-                self.add_paragraph(text, element_id)
             elif command == "undo":
                 self.undo()
             elif command == "redo":

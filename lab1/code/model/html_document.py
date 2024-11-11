@@ -41,6 +41,25 @@ class HTMLDocument:
                 if res is not None:
                     return res
             return None
+    
+    #在某元素前插入元素
+    def insert_before(self, target_id, new_element) -> None:
+        if self.whether_exists_element(new_element):
+            print(f"element with this id: {new_element.id} already exsists!")
+            return
+        if self.whether_exists_id(target_id) is False:
+            print(f"target element with this id: {target_id} doesn`t exsist!")
+            return
+        target_element = self.find_element_by_id(self.html, target_id)
+        if target_element:
+            parent = target_element.parent
+            if parent:
+                index = parent.children.index(target_element)
+                parent.children.insert(index, new_element)
+                new_element.set_parent = parent
+                self.ids.append(new_element.id)
+        else:
+            print(f"Element with id '{target_id}' not found.")
 
     #在某元素后插入元素
     def insert_after(self, target_id, new_element) -> None:
