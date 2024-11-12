@@ -1,4 +1,5 @@
 from .html_element import HTMLElement
+import os
 from spellchecker import SpellChecker
 
 #整个html文档，最外层为html元素，包含head和body
@@ -149,6 +150,21 @@ class HTMLDocument:
             print("Spelling errors found:")
             for word, suggestions in errors.items():
                 print(f" - '{word}' may be incorrect. Suggestions: {suggestions}")
+    
+    #保存html
+    def save(self, file_path) -> None:
+        directory = os.path.dirname(file_path)
+        if directory and not os.path.exists(directory):
+            print(f"Error: Directory '{directory}' does not exist.")
+            return
+
+        try:
+            html_content = self._to_html_string()
+            with open(file_path, "w", encoding="utf-8") as file:
+                file.write(html_content)
+            print(f"HTML document saved to {file_path}")
+        except Exception as e:
+            print(f"Failed to save HTML document: {e}")
 
     #树的格式
     def _display_tree(self, element, level, is_first, is_last, prefix) -> None:
@@ -183,7 +199,7 @@ class HTMLDocument:
             self._remove_element_recursively(child)
     
     #递归检查拼写
-    def __check_spelling_recursively(self, element) -> dict:
+    def _check_spelling_recursively(self, element) -> dict:
         errors = {}
         if element.content:
             words = element.content.split()
@@ -197,6 +213,10 @@ class HTMLDocument:
             errors.update(child_errors)
         
         return errors
+    
+    def _to_html_string(self) -> str:
+
+        return "<!DOCTYPE html>\n" + str(self.html)
     
 if __name__ == "__main__":
     document = HTMLDocument(title="My Webapp")
