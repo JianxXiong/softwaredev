@@ -28,3 +28,4 @@ class HTMLElement:
         tag_close = f"</{self.tag}>"
         child_content = '\n'.join(str(child) for child in self.children)
         return f"{tag_open}{self.content}{child_content}{tag_close}"
+

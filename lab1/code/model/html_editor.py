@@ -1,5 +1,5 @@
-from .html_element import HTMLElement
-from .html_document import HTMLDocument
+from html_element import HTMLElement
+from html_document import HTMLDocument
 import os
 from copy import deepcopy
 from bs4 import BeautifulSoup
@@ -34,17 +34,20 @@ class HTMLEditor:
         if soup.html:
             title_tag = soup.title.string if soup.title else "Untitled"
             self.document = HTMLDocument(title=title_tag)
-            html_element = self._build_element_tree(soup.html)
+            ids = []
+            html_element = self._build_element_tree(soup.html, ids=ids)
             self.document.html = html_element
+            self.document.set_ids(ids)
             self.initialized = True
             print("Document initialized from file.")
         else:
             print("Load html failed.")
 
     #读取html的辅助函数
-    def _build_element_tree(self, bs_element, parent=None) -> HTMLElement:
+    def _build_element_tree(self, bs_element, parent=None, ids=[]) -> HTMLElement:
             tag_name = bs_element.name
-            element_id = bs_element.get("id", None)
+            element_id = bs_element.get("id", tag_name)
+            ids.append(element_id)
             content = bs_element.string if bs_element.string else ""
             element = HTMLElement(tag=tag_name, content=content.strip(), element_id=element_id)
             
@@ -55,7 +58,7 @@ class HTMLEditor:
             # 遍历子元素并递归添加
             for child in bs_element.children:
                 if child.name:  # 跳过字符串节点，只处理标签节点
-                    self._build_element_tree(child, element)
+                    self._build_element_tree(child, element, ids=ids)
             
             return element
 
@@ -67,7 +70,7 @@ class HTMLEditor:
     #向某元素内部添加子元素
     def add_into(self, parent_id, new_element_id, new_element_content, new_element_tag) -> None:
         self._save_state()
-        self.document.add_into(target_id=parent_id, new_element=HTMLElement(tag=new_element_tag, id=new_element_id, content=new_element_content, parent=parent_id))
+        self.document.add_into(target_id=parent_id, new_element=HTMLElement(tag=new_element_tag, element_id=new_element_id, content=new_element_content, parent=parent_id))
    
     #修改元素id
     def edit_element_id(self, target_id, new_id) -> None:
@@ -129,14 +132,15 @@ class HTMLEditor:
                             init\n\
                             read filepath\n")
             if command.startswith("init"):
-                self.document = HTMLDocument()
+                self.init()
             elif command.startswith("read"):
-                file_path = command.split(" ")[1:]
+                file_path = command.split(" ")[1]
                 self.read_html(file_path=file_path)
             else:
                 print("initialize document first!")
             if self.initialized:
                 break
+            print(self.initialized)
         
         while True:
             command = input("Enter command (insert, append, edit-id, edit-text, delete, print-indent, print-tree, spell-check, save, undo, redo): \n \
@@ -150,32 +154,43 @@ class HTMLEditor:
                             spell-check\n\
                             save filepath\n\
                             undo\n\
-                            redo")
+                            redo\n")
             if command.startswith("insert"):
-                tag, id, target_id, content = command.split(" ")[1:]
+                commands = command.split(" ")
+                tag, id, target_id = commands[1:4]
+                content = None if len(commands) == 4 else (" ").join(commands[4:])
                 self.insert_before(target_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
             elif command.startswith("append"):
-                tag, id, target_id, content = command.split(" ")[1:]
+                commands = command.split(" ")
+                tag, id, target_id = commands[1:4]
+                content = None if len(commands) == 4 else (" ").join(commands[4:])
                 self.add_into(parent_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
             elif command.startswith("edit-id"):
-                target_id, new_id = command.split(" ")[1:]
+                commands = command.split(" ")
+                target_id, new_id = commands[1:]
                 self.edit_element_id(target_id=target_id, new_id=new_id)
             elif command.startswith("edit-text"):
-                target_id, new_content = command.split(" ")[1:]
+                commands = command.split(" ")
+                target_id = commands[1]
+                new_content = "" if len(commands) == 2 else (" ").join(commands[2:])
                 self.edit_element_content(target_id=target_id, new_content=new_content)
             elif command.startswith("delete"):
-                target_id = command.split(" ")[1:]
+                target_id = command.split(" ")[1]
                 self.delete_element(target_id=target_id)
             elif command.startswith("print-indent"):
-                indent = command.split(" ")[1:]
+                commands = command.split(" ")
+                indent = 2 if len(commands) == 1 else eval(commands[1])
                 self.print_indent(indent=indent)
             elif command.startswith("print-tree"):
                 self.print_tree()
             elif command.startswith("spell-check"):
                 self.check_spelling()
             elif command.startswith("save"):
-                save_path = command.split(" ")[1:]
-                self.save(save_path=save_path)
+                save_path = command.split(" ")[1]
+            elif command.startswith("redo"):
+                self.redo()
+            elif command.startswith("undo"):
+                self.undo()   
             else:
                 print("Unknown command.")
 

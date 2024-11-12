@@ -1,4 +1,4 @@
-from .html_element import HTMLElement
+from html_element import HTMLElement
 import os
 from spellchecker import SpellChecker
 
@@ -17,6 +17,11 @@ class HTMLDocument:
         self.html.add_child(self.title)
         self.html.add_child(self.head)
         self.html.add_child(self.body)
+
+        self.spell_checker = SpellChecker()
+
+    def set_ids(self, new_ids) -> None:
+        self.ids = new_ids
 
     #修改title内容
     def set_title(self, new_title) -> None:
@@ -59,7 +64,7 @@ class HTMLDocument:
             if parent:
                 index = parent.children.index(target_element)
                 parent.children.insert(index, new_element)
-                new_element.set_parent = parent
+                new_element.set_parent(parent)
                 self.ids.append(new_element.id)
         else:
             print(f"Element with id '{target_id}' not found.")
@@ -126,19 +131,20 @@ class HTMLDocument:
     def delete_element(self, element_id) -> None:
         if not self.whether_exists_id(element_id):
             print(f"element with this id: {element_id} doesn`t exsists!")
-        target_element = self.find_element_by_id(element_id)
+            return
+        target_element = self.find_element_by_id(self.html, element_id)
         parent = target_element.parent
         if parent is not None:
             parent.children.remove(target_element)
-        self._remove_element_recursively(element_id)
+        self._remove_element_recursively(target_element)
     
     #打印树形结构
-    def display_tree_structure(self, indent=2) -> None:
-        self._display_tree(self.html, level=0, is_first=True, is_last=True, prefix="", indent=indent)
+    def display_tree_structure(self) -> None:
+        self._display_tree(self.html, level=0, is_first=True, is_last=True, prefix="")
 
     #打印缩进结构
-    def display_indent_structure(self) -> None:
-        self._display_indent(self.html, 0)
+    def display_indent_structure(self, indent) -> None:
+        self._display_indent(self.html, level=0, indent=indent)
 
     #拼写检查
     def check_spelling(self) -> None:
@@ -172,6 +178,9 @@ class HTMLDocument:
         if is_first:
             connector = ""
         print(f"{prefix}{connector}{element.tag}{'#' + element.id if element.id else ''}")
+        if element.content:
+            content_prefix = prefix + ("    " if is_last else "|   ")
+            print(f"{content_prefix}└── {element.content}")
         new_prefix = prefix + ("    " if is_last else "│   ")
         child_count = len(element.children)
         for i, child in enumerate(element.children):
@@ -179,17 +188,17 @@ class HTMLDocument:
 
     #缩进格式
     def _display_indent(self, element, level, indent=2) -> None:
-        indent = " " * indent * level
+        indent_str = " " * indent * level
         id_part = f' id="{element.id}"' if element.id else ''
-        tag_open = f"{indent}<{element.tag}{id_part}> "
+        tag_open = f"{indent_str}<{element.tag}{id_part}> "
         content = element.content
         if element.tag in ['title', 'h1', 'p', 'li']:
             print(f"{tag_open}{content}</{element.tag}>")
         else:
             print(f"{tag_open}{content}")
             for child in element.children:
-                self._display_indent(child, level + 1)
-            print(f"{indent}</{element.tag}>")
+                self._display_indent(child, level + 1, indent)
+            print(f"{indent_str}</{element.tag}>")
     
     #递归删除子元素
     def _remove_element_recursively(self, element) -> None:
@@ -206,6 +215,8 @@ class HTMLDocument:
             for word in words:
                 if word not in self.spell_checker:  
                     suggestions = self.spell_checker.candidates(word)
+                    if suggestions is None:
+                        continue
                     errors[word] = list(suggestions)
         
         for child in element.children:
@@ -217,14 +228,3 @@ class HTMLDocument:
     def _to_html_string(self) -> str:
 
         return "<!DOCTYPE html>\n" + str(self.html)
-    
-if __name__ == "__main__":
-    document = HTMLDocument(title="My Webapp")
-    res = document.display_indent_structure()
-    res = document.add_into("body", HTMLElement("h1", "h111111", None, "h11"))
-    res = document.add_into("body", HTMLElement("h1", "h111111", None, "h12"))
-    res = document.insert_after("h11", HTMLElement("h1", "h111111", None, "h13"))
-    res = document.insert_after("h11", HTMLElement("h1", "h111111", None, "h13"))
-    res = document.edit_element_id("h11", "h14")
-    res = document.edit_element_content("h11", "hahahahha")
-    res = document.display_indent_structure()
