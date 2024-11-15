@@ -14,6 +14,8 @@ class HTMLEditor:
         self.initialized = False
         self.history = []
         self.redo_stack = []
+        self.showid = True
+        self.modified = False
 
     #初始化空html
     def init(self) -> None:
@@ -65,27 +67,34 @@ class HTMLEditor:
     #在某元素前插入元素
     def insert_before(self, target_id, new_element_id, new_element_content, new_element_tag) -> None:
         self._save_state()
-        self.document.insert_before(target_id=target_id, new_element=HTMLElement(tag=new_element_tag, content=new_element_content, element_id=new_element_id))
-    
+        if self.document.insert_before(target_id=target_id, new_element=HTMLElement(tag=new_element_tag, content=new_element_content, element_id=new_element_id)):
+            self.modified = True
+        
+
     #向某元素内部添加子元素
     def add_into(self, parent_id, new_element_id, new_element_content, new_element_tag) -> None:
         self._save_state()
-        self.document.add_into(target_id=parent_id, new_element=HTMLElement(tag=new_element_tag, element_id=new_element_id, content=new_element_content, parent=parent_id))
+        if self.document.add_into(target_id=parent_id, new_element=HTMLElement(tag=new_element_tag, element_id=new_element_id, content=new_element_content, parent=parent_id)):
+            self.modified = True
+            print("modified1!!!!!!")
    
     #修改元素id
     def edit_element_id(self, target_id, new_id) -> None:
         self._save_state()
-        self.document.edit_element_id(target_id=target_id, new_id=new_id)
+        if self.document.edit_element_id(target_id=target_id, new_id=new_id):
+            self.modified = True
 
     #修改元素文本
     def edit_element_content(self, target_id, new_content) -> None:
         self._save_state()
-        self.document.edit_element_content(target_id=target_id, new_content=new_content)
+        if self.document.edit_element_content(target_id=target_id, new_content=new_content):
+            self.modified = True
 
     #删除某元素
     def delete_element(self, target_id) -> None:
         self._save_state()
-        self.document.delete_element(element_id=target_id)
+        if self.document.delete_element(element_id=target_id):
+            self.modified = True
 
     #缩进格式
     def print_indent(self, indent) -> None:
@@ -93,7 +102,7 @@ class HTMLEditor:
 
     #树的格式
     def print_tree(self) -> None:
-        self.document.display_tree_structure()
+        self.document.display_tree_structure(showid=self.showid)
 
     #拼写检查
     def check_spelling(self) -> None:
@@ -102,6 +111,7 @@ class HTMLEditor:
     #写入html文件
     def save(self, save_path):
         self.document.save(file_path=save_path)
+        self.modified = False
 
     #多步重做
     def redo(self) -> None:
@@ -127,7 +137,7 @@ class HTMLEditor:
 
     #运行命令行界面，处理用户输入的命令
     def run(self) -> None:
-        while True:
+        while not self.initialized:
             command = input("Enter comman init or read[file]:\n\
                             init\n\
                             read filepath\n")
@@ -138,9 +148,6 @@ class HTMLEditor:
                 self.read_html(file_path=file_path)
             else:
                 print("initialize document first!")
-            if self.initialized:
-                break
-            print(self.initialized)
         
         while True:
             command = input("Enter command (insert, append, edit-id, edit-text, delete, print-indent, print-tree, spell-check, save, undo, redo): \n \
@@ -158,12 +165,12 @@ class HTMLEditor:
             if command.startswith("insert"):
                 commands = command.split(" ")
                 tag, id, target_id = commands[1:4]
-                content = None if len(commands) == 4 else (" ").join(commands[4:])
+                content = "" if len(commands) == 4 else (" ").join(commands[4:])
                 self.insert_before(target_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
             elif command.startswith("append"):
                 commands = command.split(" ")
                 tag, id, target_id = commands[1:4]
-                content = None if len(commands) == 4 else (" ").join(commands[4:])
+                content = "" if len(commands) == 4 else (" ").join(commands[4:])
                 self.add_into(parent_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
             elif command.startswith("edit-id"):
                 commands = command.split(" ")

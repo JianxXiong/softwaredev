@@ -23,6 +23,9 @@ class HTMLDocument:
     def set_ids(self, new_ids) -> None:
         self.ids = new_ids
 
+    def set_showid(self, showid) -> None:
+        self.showid = showid
+
     #修改title内容
     def set_title(self, new_title) -> None:
         self.title.set_content(new_title)
@@ -51,13 +54,13 @@ class HTMLDocument:
             return None
     
     #在某元素前插入元素
-    def insert_before(self, target_id, new_element) -> None:
+    def insert_before(self, target_id, new_element) -> bool:
         if self.whether_exists_element(new_element):
             print(f"element with this id: {new_element.id} already exsists!")
-            return
+            return False
         if self.whether_exists_id(target_id) is False:
             print(f"target element with this id: {target_id} doesn`t exsist!")
-            return
+            return False
         target_element = self.find_element_by_id(self.html, target_id)
         if target_element:
             parent = target_element.parent
@@ -66,17 +69,19 @@ class HTMLDocument:
                 parent.children.insert(index, new_element)
                 new_element.set_parent(parent)
                 self.ids.append(new_element.id)
+            return True
         else:
             print(f"Element with id '{target_id}' not found.")
+            return False
 
     #在某元素后插入元素
-    def insert_after(self, target_id, new_element) -> None:
+    def insert_after(self, target_id, new_element) -> bool:
         if self.whether_exists_element(new_element):
             print(f"element with this id: {new_element.id} already exsists!")
-            return
+            return False
         if self.whether_exists_id(target_id) is False:
             print(f"target element with this id: {target_id} doesn`t exsist!")
-            return
+            return False
         target_element = self.find_element_by_id(self.html, target_id)
         if target_element:
             parent = target_element.parent
@@ -89,58 +94,65 @@ class HTMLDocument:
                 else:
                     parent.add_child(new_element)
                     self.ids.append(new_element.id)
+            return True
         else:
             print(f"Element with id '{target_id}' not found.")
+            return False
 
     #向某元素内部添加子元素
-    def add_into(self, target_id, new_element) -> None:
+    def add_into(self, target_id, new_element) -> bool:
         if self.whether_exists_element(new_element):
             print(f"element with this id: {new_element.id} already exsists!")
-            return
+            return False
         if self.whether_exists_id(target_id) is False:
             print(f"target element with this id: {target_id} doesn`t exsist!")
-            return
+            return False
         target_element = self.find_element_by_id(self.html, target_id)
         if target_element:
             target_element.add_child(new_element)
             self.ids.append(new_element.id)
+            return True
         else:
             print(f"Element with id '{target_id}' not found.")
+            return False
 
     #修改元素id
-    def edit_element_id(self, target_id, new_id) -> None:
+    def edit_element_id(self, target_id, new_id) -> bool:
         if self.whether_exists_id(new_id):
             print(f"element with this id: {new_id} already exsists!")
-            return
+            return False
         if self.whether_exists_id(target_id) is False:
             print(f"element with this id: {target_id} doesn`t exsists!")
-            return
+            return False
         target_element = self.find_element_by_id(self.html, target_id)
         self.ids[self.ids.index(target_id)] = new_id
         target_element.set_id(new_id)
+        return True
 
     #修改元素文本
-    def edit_element_content(self, target_id, new_content) -> None:
+    def edit_element_content(self, target_id, new_content) -> bool:
         if self.whether_exists_id(target_id) is False:
             print(f"element with this id: {target_id} doesn`t exsists!")
-            return
+            return False
         target_element = self.find_element_by_id(self.html, target_id)
         target_element.set_content(new_content)
+        return True
 
     #删除某元素
-    def delete_element(self, element_id) -> None:
+    def delete_element(self, element_id) -> bool:
         if not self.whether_exists_id(element_id):
             print(f"element with this id: {element_id} doesn`t exsists!")
-            return
+            return False
         target_element = self.find_element_by_id(self.html, element_id)
         parent = target_element.parent
         if parent is not None:
             parent.children.remove(target_element)
         self._remove_element_recursively(target_element)
+        return True
     
     #打印树形结构
-    def display_tree_structure(self) -> None:
-        self._display_tree(self.html, level=0, is_first=True, is_last=True, prefix="")
+    def display_tree_structure(self, showid) -> None:
+        self._display_tree(self.html, level=0, is_first=True, is_last=True, prefix="", showid=showid)
 
     #打印缩进结构
     def display_indent_structure(self, indent) -> None:
@@ -173,18 +185,21 @@ class HTMLDocument:
             print(f"Failed to save HTML document: {e}")
 
     #树的格式
-    def _display_tree(self, element, level, is_first, is_last, prefix) -> None:
+    def _display_tree(self, element, level, is_first, is_last, prefix, showid) -> None:
         connector = "└── " if is_last else "├── "
         if is_first:
             connector = ""
-        print(f"{prefix}{connector}{element.tag}{'#' + element.id if element.id else ''}")
+        if showid:
+            print(f"{prefix}{connector}{element.tag}{'#' + element.id if element.id else ''}")
+        else:
+            print(f"{prefix}{connector}{element.tag}")
         if element.content:
             content_prefix = prefix + ("    " if is_last else "|   ")
             print(f"{content_prefix}└── {element.content}")
         new_prefix = prefix + ("    " if is_last else "│   ")
         child_count = len(element.children)
         for i, child in enumerate(element.children):
-            self._display_tree(child, level + 1, False, is_last=(i == child_count - 1), prefix=new_prefix)
+            self._display_tree(child, level + 1, False, is_last=(i == child_count - 1), prefix=new_prefix, showid=showid)
 
     #缩进格式
     def _display_indent(self, element, level, indent=2) -> None:
