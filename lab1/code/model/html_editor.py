@@ -1,5 +1,5 @@
-from html_element import HTMLElement
-from html_document import HTMLDocument
+from .html_element import HTMLElement
+from .html_document import HTMLDocument
 import os
 from copy import deepcopy
 from bs4 import BeautifulSoup

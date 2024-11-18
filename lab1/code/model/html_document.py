@@ -1,4 +1,4 @@
-from html_element import HTMLElement
+from .html_element import HTMLElement
 import os
 from spellchecker import SpellChecker
 
