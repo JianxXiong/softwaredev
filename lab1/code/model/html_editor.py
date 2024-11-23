@@ -1,5 +1,5 @@
-from .html_element import HTMLElement
-from .html_document import HTMLDocument
+from model.html_element import HTMLElement
+from model.html_document import HTMLDocument
 import os
 from copy import deepcopy
 from bs4 import BeautifulSoup
@@ -15,7 +15,7 @@ class HTMLEditor:
         self.history = []
         self.redo_stack = []
         self.showid = True
-        self.modified = False
+        self.modified = False       #这个modified变量没有用，可以考虑删掉，在session_manager中的modified_files中记录了
 
     #初始化空html
     def init(self) -> None:
@@ -69,14 +69,15 @@ class HTMLEditor:
         self._save_state()
         if self.document.insert_before(target_id=target_id, new_element=HTMLElement(tag=new_element_tag, content=new_element_content, element_id=new_element_id)):
             self.modified = True
-        
+
 
     #向某元素内部添加子元素
     def add_into(self, parent_id, new_element_id, new_element_content, new_element_tag) -> None:
         self._save_state()
         if self.document.add_into(target_id=parent_id, new_element=HTMLElement(tag=new_element_tag, element_id=new_element_id, content=new_element_content, parent=parent_id)):
             self.modified = True
-            print("modified1!!!!!!")
+            print("son element has been added")
+
    
     #修改元素id
     def edit_element_id(self, target_id, new_id) -> None:
@@ -135,72 +136,6 @@ class HTMLEditor:
         self.history.append(deepcopy(self.document))
         self.redo_stack.clear()
 
-    #运行命令行界面，处理用户输入的命令
-    def run(self) -> None:
-        while not self.initialized:
-            command = input("Enter comman init or read[file]:\n\
-                            init\n\
-                            read filepath\n")
-            if command.startswith("init"):
-                self.init()
-            elif command.startswith("read"):
-                file_path = command.split(" ")[1]
-                self.read_html(file_path=file_path)
-            else:
-                print("initialize document first!")
-        
-        while True:
-            command = input("Enter command (insert, append, edit-id, edit-text, delete, print-indent, print-tree, spell-check, save, undo, redo): \n\
-                            insert tagName idValue insertLocation [textContent] \n\
-                            append tagName idValue parentElement [textContent]\n\
-                            edit-id oldId newId\n\
-                            edit-text element [newTextContent]\n\
-                            delete element\n\
-                            print-indent [indent]\n\
-                            print-tree\n\
-                            spell-check\n\
-                            save filepath\n\
-                            undo\n\
-                            redo\n")
-            if command.startswith("insert"):
-                commands = command.split(" ")
-                tag, id, target_id = commands[1:4]
-                content = "" if len(commands) == 4 else (" ").join(commands[4:])
-                self.insert_before(target_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
-            elif command.startswith("append"):
-                commands = command.split(" ")
-                tag, id, target_id = commands[1:4]
-                content = "" if len(commands) == 4 else (" ").join(commands[4:])
-                self.add_into(parent_id=target_id, new_element_id=id, new_element_tag=tag, new_element_content=content)
-            elif command.startswith("edit-id"):
-                commands = command.split(" ")
-                target_id, new_id = commands[1:]
-                self.edit_element_id(target_id=target_id, new_id=new_id)
-            elif command.startswith("edit-text"):
-                commands = command.split(" ")
-                target_id = commands[1]
-                new_content = "" if len(commands) == 2 else (" ").join(commands[2:])
-                self.edit_element_content(target_id=target_id, new_content=new_content)
-            elif command.startswith("delete"):
-                target_id = command.split(" ")[1]
-                self.delete_element(target_id=target_id)
-            elif command.startswith("print-indent"):
-                commands = command.split(" ")
-                indent = 2 if len(commands) == 1 else eval(commands[1])
-                self.print_indent(indent=indent)
-            elif command.startswith("print-tree"):
-                self.print_tree()
-            elif command.startswith("spell-check"):
-                self.check_spelling()
-            elif command.startswith("save"):
-                save_path = command.split(" ")[1]
-                self.save(save_path)
-            elif command.startswith("redo"):
-                self.redo()
-            elif command.startswith("undo"):
-                self.undo()   
-            else:
-                print("Unknown command.")
 
 if __name__=="__main__":
     html_editor = HTMLEditor()

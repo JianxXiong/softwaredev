@@ -1,5 +1,6 @@
 from model.html_editor import HTMLEditor
+from model.session_manager import SessionManager
 
 if __name__ == "__main__":
-    editor = HTMLEditor()
-    editor.run()
+    session = SessionManager()
+    session.run()
