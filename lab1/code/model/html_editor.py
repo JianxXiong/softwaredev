@@ -150,7 +150,7 @@ class HTMLEditor:
                 print("initialize document first!")
         
         while True:
-            command = input("Enter command (insert, append, edit-id, edit-text, delete, print-indent, print-tree, spell-check, save, undo, redo): \n \
+            command = input("Enter command (insert, append, edit-id, edit-text, delete, print-indent, print-tree, spell-check, save, undo, redo): \n\
                             insert tagName idValue insertLocation [textContent] \n\
                             append tagName idValue parentElement [textContent]\n\
                             edit-id oldId newId\n\
@@ -194,6 +194,7 @@ class HTMLEditor:
                 self.check_spelling()
             elif command.startswith("save"):
                 save_path = command.split(" ")[1]
+                self.save(save_path)
             elif command.startswith("redo"):
                 self.redo()
             elif command.startswith("undo"):

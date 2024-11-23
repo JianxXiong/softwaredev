@@ -56,10 +56,10 @@ class HTMLDocument:
     #在某元素前插入元素
     def insert_before(self, target_id, new_element) -> bool:
         if self.whether_exists_element(new_element):
-            print(f"element with this id: {new_element.id} already exsists!")
+            print(f"element with this id: {new_element.id} already exists!")
             return False
         if self.whether_exists_id(target_id) is False:
-            print(f"target element with this id: {target_id} doesn`t exsist!")
+            print(f"target element with this id: {target_id} doesn't exist!")
             return False
         target_element = self.find_element_by_id(self.html, target_id)
         if target_element:
@@ -77,10 +77,10 @@ class HTMLDocument:
     #在某元素后插入元素
     def insert_after(self, target_id, new_element) -> bool:
         if self.whether_exists_element(new_element):
-            print(f"element with this id: {new_element.id} already exsists!")
+            print(f"element with this id: {new_element.id} already exists!")
             return False
         if self.whether_exists_id(target_id) is False:
-            print(f"target element with this id: {target_id} doesn`t exsist!")
+            print(f"target element with this id: {target_id} doesn't exist!")
             return False
         target_element = self.find_element_by_id(self.html, target_id)
         if target_element:
@@ -102,10 +102,10 @@ class HTMLDocument:
     #向某元素内部添加子元素
     def add_into(self, target_id, new_element) -> bool:
         if self.whether_exists_element(new_element):
-            print(f"element with this id: {new_element.id} already exsists!")
+            print(f"element with this id: {new_element.id} already exists!")
             return False
         if self.whether_exists_id(target_id) is False:
-            print(f"target element with this id: {target_id} doesn`t exsist!")
+            print(f"target element with this id: {target_id} doesn't exist!")
             return False
         target_element = self.find_element_by_id(self.html, target_id)
         if target_element:
@@ -119,10 +119,10 @@ class HTMLDocument:
     #修改元素id
     def edit_element_id(self, target_id, new_id) -> bool:
         if self.whether_exists_id(new_id):
-            print(f"element with this id: {new_id} already exsists!")
+            print(f"element with this id: {new_id} already exists!")
             return False
         if self.whether_exists_id(target_id) is False:
-            print(f"element with this id: {target_id} doesn`t exsists!")
+            print(f"element with this id: {target_id} doesn't exist!")
             return False
         target_element = self.find_element_by_id(self.html, target_id)
         self.ids[self.ids.index(target_id)] = new_id
@@ -132,7 +132,7 @@ class HTMLDocument:
     #修改元素文本
     def edit_element_content(self, target_id, new_content) -> bool:
         if self.whether_exists_id(target_id) is False:
-            print(f"element with this id: {target_id} doesn`t exsists!")
+            print(f"element with this id: {target_id} doesn't exist!")
             return False
         target_element = self.find_element_by_id(self.html, target_id)
         target_element.set_content(new_content)
@@ -141,7 +141,7 @@ class HTMLDocument:
     #删除某元素
     def delete_element(self, element_id) -> bool:
         if not self.whether_exists_id(element_id):
-            print(f"element with this id: {element_id} doesn`t exsists!")
+            print(f"element with this id: {element_id} doesn't exist!")
             return False
         target_element = self.find_element_by_id(self.html, element_id)
         parent = target_element.parent
