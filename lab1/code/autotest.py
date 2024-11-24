@@ -69,9 +69,12 @@ class TestSessionManager(unittest.TestCase):
         new_file = 'new_test.html'
         with open(new_file, 'w') as f:
             f.write('<html><body><p>New Test</p></body></html>')
+        self.session.load_editor(self.test_file)
         self.session.load_editor(new_file)
         self.session.edit_switch(self.test_file)
         self.assertEqual(self.session.active_editor, self.test_file)
+        self.session.edit_switch(new_file)
+        self.assertEqual(self.session.active_editor, new_file)
 
     def test_set_showid(self):
         self.session.load_editor(self.test_file)
