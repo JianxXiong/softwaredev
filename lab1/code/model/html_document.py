@@ -243,3 +243,16 @@ class HTMLDocument:
     def _to_html_string(self) -> str:
 
         return "<!DOCTYPE html>\n" + str(self.html)
+    
+    #测试用 所有的记录所有的element id
+    def get_element_ids(self):
+        ids = []
+        self.html.collect_ids(ids)
+        return ids
+    
+    #测试用 所有的记录所有的element content
+    def get_element_content(self, target_id):
+        element = self.find_element_by_id(target_id)
+        if element:
+            return element.content
+        return None
