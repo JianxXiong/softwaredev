@@ -47,7 +47,6 @@ class TestSessionManager(unittest.TestCase):
         self.assertIn(new_file, self.session.editors)
         self.assertEqual(self.session.active_editor, new_file)
 
-    #还有问题
     def test_save_editor(self):
         # Modify editor content and save
         self.session.load_editor(self.test_file)
