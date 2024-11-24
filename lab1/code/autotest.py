@@ -53,11 +53,11 @@ class TestSessionManager(unittest.TestCase):
         self.session.load_editor(self.test_file)
         editor = self.session.editors[self.test_file]
         #editor.document.head.title.content = 'Modified Title'
-        editor.edit_element_content('title', 'Modified Title')
+        editor.edit_element_content('head', 'Modified Test')
         self.session.save_editor(self.test_file)
         with open(self.test_file, 'r') as f:
             content = f.read()
-        self.assertIn('<title>Modified Title</title>', content)
+        self.assertIn('<head id="head">Modified Test', content)
 
     def test_close_editor(self):
         # 关闭编辑器
@@ -121,15 +121,15 @@ class TestSessionManager(unittest.TestCase):
         editor.delete_element('h1')
         self.assertNotIn('h1', editor.document.get_element_ids())
 
-    # def test_undo_redo(self):
-    #     # 撤销和重做
-    #     self.session.load_editor(self.test_file)
-    #     editor = self.session.editors[self.test_file]
-    #     editor.edit_element_content('h1', 'Modified Content')
-    #     editor.undo()
-    #     self.assertNotIn('Modified Content', editor.document.get_element_content('h1'))
-    #     editor.redo()
-    #     self.assertIn('Modified Content', editor.document.get_element_content('h1'))
+    def test_undo_redo(self):
+        # 撤销和重做
+        self.session.load_editor(self.test_file)
+        editor = self.session.editors[self.test_file]
+        editor.edit_element_content('h1', 'Modified Content')
+        editor.undo()
+        self.assertNotIn('Modified Content', editor.document.get_element_content('h1'))
+        editor.redo()
+        self.assertIn('Modified Content', editor.document.get_element_content('h1'))
 
     def test_spell_check(self):
         self.session.load_editor(self.test_file)
