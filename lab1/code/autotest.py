@@ -47,16 +47,17 @@ class TestSessionManager(unittest.TestCase):
         self.assertIn(new_file, self.session.editors)
         self.assertEqual(self.session.active_editor, new_file)
 
-    # def test_save_editor(self):
-    #     self.session.load_editor(self.test_file)
-    #     editor = self.session.editors[self.test_file]
-    #     title_element = editor.document.head.find_element_by_tag('title')
-    #     if title_element:
-    #         title_element.content = 'Modified Title'
-    #     self.session.save_editor(self.test_file)
-    #     with open(self.test_file, 'r') as f:
-    #         content = f.read()
-    #     self.assertIn('<title>Modified Title</title>', content)
+    #还有问题
+    def test_save_editor(self):
+        # Modify editor content and save
+        self.session.load_editor(self.test_file)
+        editor = self.session.editors[self.test_file]
+        #editor.document.head.title.content = 'Modified Title'
+        editor.edit_element_content('title', 'Modified Title')
+        self.session.save_editor(self.test_file)
+        with open(self.test_file, 'r') as f:
+            content = f.read()
+        self.assertIn('<title>Modified Title</title>', content)
 
     def test_close_editor(self):
         # 关闭编辑器
@@ -65,13 +66,13 @@ class TestSessionManager(unittest.TestCase):
         self.assertNotIn(self.test_file, self.session.editors)
         self.assertIsNone(self.session.active_editor)
 
-    # def test_switch_editor(self):
-    #     new_file = 'new_test.html'
-    #     with open(new_file, 'w') as f:
-    #         f.write('<html><body><p>New Test</p></body></html>')
-    #     self.session.load_editor(new_file)
-    #     self.session.edit_switch(self.test_file)
-    #     self.assertEqual(self.session.active_editor, self.test_file)
+    def test_switch_editor(self):
+        new_file = 'new_test.html'
+        with open(new_file, 'w') as f:
+            f.write('<html><body><p>New Test</p></body></html>')
+        self.session.load_editor(new_file)
+        self.session.edit_switch(self.test_file)
+        self.assertEqual(self.session.active_editor, self.test_file)
 
     def test_set_showid(self):
         self.session.load_editor(self.test_file)
@@ -106,12 +107,12 @@ class TestSessionManager(unittest.TestCase):
         self.assertNotIn('h1', editor.document.get_element_ids())
         self.assertIn('new_h1', editor.document.get_element_ids())
 
-    # def test_edit_element_content(self):
-    #     # 编辑元素内容
-    #     self.session.load_editor(self.test_file)
-    #     editor = self.session.editors[self.test_file]
-    #     editor.edit_element_content('h1', 'Modified Content')
-    #     self.assertIn('Modified Content', editor.document.get_element_content('h1'))
+    def test_edit_element_content(self):
+        # 编辑元素内容
+        self.session.load_editor(self.test_file)
+        editor = self.session.editors[self.test_file]
+        editor.edit_element_content('h1', 'Modified Content')
+        self.assertIn('Modified Content', editor.document.get_element_content('h1'))
 
     def test_delete_element(self):
         # 删除元素
@@ -130,12 +131,13 @@ class TestSessionManager(unittest.TestCase):
     #     editor.redo()
     #     self.assertIn('Modified Content', editor.document.get_element_content('h1'))
 
-    # def test_spell_check(self):S
-    #     # 拼写检查（mock拼写检查器）
-    #     with patch('model.html_document.HTMLDocument.check_spelling') as mock_check:
-    #         self.session.load_editor(self.test_file)
-    #         self.session.check_spelling()
-    #         mock_check.assert_called()
+    def test_spell_check(self):
+        self.session.load_editor(self.test_file)
+        editor = self.session.editors[self.test_file]
+        # 拼写检查（mock拼写检查器）
+        with patch('model.html_document.HTMLDocument.check_spelling') as mock_check:
+            editor.check_spelling()
+            mock_check.assert_called()
 
     def test_print_tree(self):
         # 打印树结构

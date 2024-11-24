@@ -252,7 +252,7 @@ class HTMLDocument:
     
     #测试用 所有的记录所有的element content
     def get_element_content(self, target_id):
-        element = self.find_element_by_id(target_id)
+        element = self.find_element_by_id(self.html, target_id)
         if element:
             return element.content
         return None
